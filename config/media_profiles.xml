@@ -118,8 +118,8 @@
         <EncoderProfile quality="qcif" fileFormat="3gp" duration="30">
             <Video codec="h264"
                    bitRate="256000"
-                   width="176"
-                   height="144"
+                   width="320"
+                   height="240"
                    frameRate="30" />
             <Audio codec="amrnb"
                    bitRate="12200"
@@ -143,8 +143,8 @@
         <EncoderProfile quality="timelapseqcif" fileFormat="3gp" duration="30">
             <Video codec="h264"
                    bitRate="256000"
-                   width="176"
-                   height="144"
+                   width="320"
+                   height="240"
                    frameRate="30" />
             <!-- audio setting is ignored -->
             <Audio codec="amrnb"
@@ -180,8 +180,8 @@
         <EncoderProfile quality="qcif" fileFormat="mp4" duration="30">
             <Video codec="h264"
                    bitRate="256000"
-                   width="176"
-                   height="144"
+                   width="320"
+                   height="240"
                    frameRate="15" />
             <Audio codec="aac"
                    bitRate="96000"
@@ -205,8 +205,8 @@
         <EncoderProfile quality="timelapseqcif" fileFormat="3gp" duration="30">
             <Video codec="h264"
                    bitRate="256000"
-                   width="176"
-                   height="144"
+                   width="320"
+                   height="240"
                    frameRate="15" />
             <!-- audio setting is ignored -->
             <Audio codec="amrnb"
