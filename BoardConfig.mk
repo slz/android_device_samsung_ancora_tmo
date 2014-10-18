@@ -47,10 +47,6 @@ TARGET_CPU_VARIANT := scorpion
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
 
-# Screens dimension
-TARGET_SCREEN_HEIGHT := 800
-TARGET_SCREEN_WIDTH := 480
-
 # Kernel
 BOARD_KERNEL_BASE := 0x00400000
 BOARD_KERNEL_PAGESIZE := 4096
@@ -84,7 +80,6 @@ BOARD_BLUEDROID_VENDOR_CONF := device/samsung/ancora_tmo/bluetooth/vnd_ancora.tx
 BOARD_MOBILEDATA_INTERFACE_NAME = "pdp0"
 BOARD_RIL_CLASS := ../../../device/samsung/ancora_tmo/ril/
 BOARD_USES_LEGACY_RIL := true
-BOARD_USES_LIBSECRIL_STUB := true
 
 # GPS
 BOARD_USES_QCOM_GPS := true
@@ -92,7 +87,7 @@ BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := msm7x30
 BOARD_VENDOR_QCOM_GPS_LOC_API_AMSS_VERSION := 50000
 
 # Graphics
-BOARD_EGL_CFG := device/samsung/ancora_tmo/config/egl.cfg
+BOARD_EGL_CFG := device/samsung/ancora_tmo/configs/egl.cfg
 TARGET_USES_C2D_COMPOSITION := true
 USE_OPENGL_RENDERER := true
 
@@ -172,8 +167,8 @@ BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
 BOARD_VOLD_MAX_PARTITIONS := 28
 
 # Custom recovery files
-TARGET_RECOVERY_INITRC := device/samsung/ancora_tmo/config/init.recovery.rc
-TARGET_RECOVERY_FSTAB := device/samsung/ancora_tmo/config/fstab.qcom
+TARGET_RECOVERY_INITRC := device/samsung/ancora_tmo/rootdir/init.recovery.rc
+TARGET_RECOVERY_FSTAB := device/samsung/ancora_tmo/rootdir/fstab.qcom
 BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/samsung/ancora_tmo/recovery/recovery_keys.c
 COMMON_GLOBAL_CFLAGS += -DNO_SECURE_DISCARD
 
