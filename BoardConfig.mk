@@ -81,6 +81,7 @@ BOARD_BLUEDROID_VENDOR_CONF := device/samsung/ancora_tmo/bluetooth/vnd_ancora.tx
 BOARD_MOBILEDATA_INTERFACE_NAME = "pdp0"
 BOARD_RIL_CLASS := ../../../device/samsung/ancora_tmo/ril/
 BOARD_USES_LEGACY_RIL := true
+TARGET_NEEDS_NON_PIE_SUPPORT := true
 
 # GPS
 BOARD_USES_QCOM_GPS := true
