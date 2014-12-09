@@ -60,7 +60,7 @@ PRODUCT_COPY_FILES += \
 
 # Wifi calibration
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/config/nvram_net.txt:system/vendor/firmware/nvram_net.txt
+    $(LOCAL_PATH)/configs/nvram_net.txt:system/vendor/firmware/nvram_net.txt
 
 # MAC adress tool
 PRODUCT_COPY_FILES += \
