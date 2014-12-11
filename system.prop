@@ -34,9 +34,6 @@ debug.hwui.render_dirty_regions=false
 # Low Power Audio
 lpa.decode=true
 
-# Resampler quality
-af.resampler.quality=4
-
 # Disable gapless mode
 audio.gapless.playback.disable=true
 
