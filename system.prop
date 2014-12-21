@@ -62,6 +62,9 @@ ro.sys.fw.bg_apps_limit=16
 persist.camera.mem.usecache=0
 persist.video.mem.usecache=0
 
+# Use Awesomeplayer instead of NuPlayer
+media.stagefright.use-awesome=true
+
 # Force camera API version 1
 camera2.portability.force_api=1
 
