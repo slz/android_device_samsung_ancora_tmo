@@ -58,9 +58,6 @@ ro.config.low_ram=true
 # Reduce background apps limit to 16 on low-tier devices
 ro.sys.fw.bg_apps_limit=16
 
-# Disable metadata mode
-debug.camcorder.disablemeta=1
-
 # Use ION uncached buffers for video recording and video playback
 persist.camera.mem.usecache=0
 persist.video.mem.usecache=0
