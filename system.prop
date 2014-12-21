@@ -44,7 +44,7 @@ af.resampler.quality=4
 audio.gapless.playback.disable=true
 
 # Set default USB interface
-persist.sys.usb.config=mass_storage
+persist.sys.usb.config=mtp
 
 # Increase speed for UMS transfer
 ro.vold.umsdirtyratio=20
