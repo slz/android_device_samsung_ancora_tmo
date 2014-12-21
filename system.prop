@@ -64,3 +64,6 @@ debug.camcorder.disablemeta=1
 # Use ION uncached buffers for video recording and video playback
 persist.camera.mem.usecache=0
 persist.video.mem.usecache=0
+
+# Enable smooth streaming
+mm.enable.smoothstreaming=true
