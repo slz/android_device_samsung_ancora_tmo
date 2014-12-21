@@ -62,5 +62,8 @@ ro.sys.fw.bg_apps_limit=16
 persist.camera.mem.usecache=0
 persist.video.mem.usecache=0
 
+# Disable atlas services on low-ram targets
+config.disable_atlas=true
+
 # Enable smooth streaming
 mm.enable.smoothstreaming=true
