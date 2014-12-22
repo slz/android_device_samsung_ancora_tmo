@@ -66,11 +66,13 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/prebuilt/get_macaddrs:system/bin/get_macaddrs
 
-# Needed to reset bootmode when leaving recovery
+# Recovery stuff
 PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/ramdisk/init.qcom.usb.rc:recovery/root/init.qcom.usb.rc \
+    $(LOCAL_PATH)/ramdisk/fstab.qcom:recovery/root/fstab.qcom \
+    $(LOCAL_PATH)/recovery/twrp.fstab:recovery/root/etc/twrp.fstab \
     $(LOCAL_PATH)/recovery/postrecoveryboot.sh:recovery/root/sbin/postrecoveryboot.sh \
-    $(LOCAL_PATH)/recovery/postrecoveryboot.sh:recovery/system/bin/postrecoveryboot.sh \
-    $(LOCAL_PATH)/rootdir/twrp.fstab:recovery/root/etc/twrp.fstab
+    $(LOCAL_PATH)/recovery/postrecoveryboot.sh:recovery/system/bin/postrecoveryboot.sh
 
 # Input device calibration files
 PRODUCT_COPY_FILES += \
