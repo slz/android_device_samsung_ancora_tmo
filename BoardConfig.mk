@@ -210,10 +210,14 @@ BOARD_SEPOLICY_UNION += \
     init.te \
     mac_update.te \
     mediaserver.te \
+    orientationd.te \
+    platform_app.te \
     rild.te \
     rmt.te \
     surfaceflinger.te \
     system.te \
+    system_app.te \
     tee.te \
     ueventd.te \
+    vold.te \
     wpa_supplicant.te
