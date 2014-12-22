@@ -28,8 +28,7 @@
 # inherit from the proprietary version
 -include vendor/samsung/ancora_tmo/BoardConfigVendor.mk
 
-# create the folder /usr to prevent the build from failing
-$(shell mkdir -p $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/)
+TARGET_SPECIFIC_HEADER_PATH := device/samsung/ancora_tmo/include
 
 # Platform
 TARGET_BOOTLOADER_BOARD_NAME := ancora_tmo
