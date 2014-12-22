@@ -7,5 +7,4 @@
             3 = "xhdpi phone screen?"
             4 = ?
     -->
-    <integer name="log_screen_metrics">1</integer>
 </resources>
