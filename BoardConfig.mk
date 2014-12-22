@@ -169,8 +169,8 @@ BOARD_VOLD_MAX_PARTITIONS := 28
 
 # Custom recovery files
 TARGET_RECOVERY_DEVICE_DIRS += device/samsung/ancora_tmo
-TARGET_RECOVERY_INITRC := device/samsung/ancora_tmo/rootdir/init.recovery.rc
-TARGET_RECOVERY_FSTAB := device/samsung/ancora_tmo/rootdir/fstab.qcom
+TARGET_RECOVERY_INITRC := device/samsung/ancora_tmo/recovery/init.recovery.rc
+TARGET_RECOVERY_FSTAB := device/samsung/ancora_tmo/ramdisk/fstab.qcom
 BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/samsung/ancora_tmo/recovery/recovery_keys.c
 COMMON_GLOBAL_CFLAGS += -DNO_SECURE_DISCARD
 
