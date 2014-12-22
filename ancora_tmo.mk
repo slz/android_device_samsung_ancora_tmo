@@ -53,10 +53,10 @@ PRODUCT_COPY_FILES += \
 
 # Ramdisk
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/rootdir/init.qcom.rc:root/init.qcom.rc \
-    $(LOCAL_PATH)/rootdir/init.qcom.usb.rc:root/init.qcom.usb.rc \
-    $(LOCAL_PATH)/rootdir/ueventd.qcom.rc:root/ueventd.qcom.rc \
-    $(LOCAL_PATH)/rootdir/fstab.qcom:root/fstab.qcom
+    $(LOCAL_PATH)/ramdisk/init.qcom.rc:root/init.qcom.rc \
+    $(LOCAL_PATH)/ramdisk/init.qcom.usb.rc:root/init.qcom.usb.rc \
+    $(LOCAL_PATH)/ramdisk/ueventd.qcom.rc:root/ueventd.qcom.rc \
+    $(LOCAL_PATH)/ramdisk/fstab.qcom:root/fstab.qcom
 
 # Wifi calibration
 PRODUCT_COPY_FILES += \
@@ -68,8 +68,8 @@ PRODUCT_COPY_FILES += \
 
 # Recovery stuff
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/rootdir/init.qcom.usb.rc:recovery/root/init.qcom.usb.rc \
-    $(LOCAL_PATH)/rootdir/fstab.qcom:recovery/root/fstab.qcom \
+    $(LOCAL_PATH)/ramdisk/init.qcom.usb.rc:recovery/root/init.qcom.usb.rc \
+    $(LOCAL_PATH)/ramdisk/fstab.qcom:recovery/root/fstab.qcom \
     $(LOCAL_PATH)/recovery/twrp.fstab:recovery/root/etc/twrp.fstab 
 
 # Input device calibration files
