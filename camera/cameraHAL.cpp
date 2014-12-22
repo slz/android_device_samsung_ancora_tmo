@@ -73,7 +73,7 @@ camera_module_t HAL_MODULE_INFO_SYM = {
         .module_api_version = CAMERA_MODULE_API_VERSION_1_0,
         .hal_api_version = HARDWARE_HAL_API_VERSION,
         .id = CAMERA_HARDWARE_MODULE_ID,
-        .name = "7x30 CameraHal Module",
+        .name = "Samsung msm7x30 Camera Wrapper",
         .author = "Zhibin Wu",
         .methods = &camera_module_methods,
         .dso = NULL, /* remove compilation warnings */
@@ -371,15 +371,15 @@ static void CameraHAL_FixupParams(android::CameraParameters &camParams, priv_cam
                   video_sizes);*/
 
 
-    if (!camParams.get(CameraParameters::KEY_PREFERRED_PREVIEW_SIZE_FOR_VIDEO)) {
-        camParams.set(CameraParameters::KEY_PREFERRED_PREVIEW_SIZE_FOR_VIDEO,
+    if (!camParams.get(android::CameraParameters::KEY_PREFERRED_PREVIEW_SIZE_FOR_VIDEO)) {
+        camParams.set(android::CameraParameters::KEY_PREFERRED_PREVIEW_SIZE_FOR_VIDEO,
                   preferred_size);
     }
 
-    camParams.set(CameraParameters::KEY_SUPPORTED_FLASH_MODES, "off,auto,on,torch");
-    camParams.set(CameraParameters::KEY_FLASH_MODE, "off");
+    camParams.set(android::CameraParameters::KEY_SUPPORTED_FLASH_MODES, "off,auto,on,torch");
+    camParams.set(android::CameraParameters::KEY_FLASH_MODE, "off");
 
-    int rotation = camParams.getInt(CameraParameters::KEY_ROTATION);
+    int rotation = camParams.getInt(android::CameraParameters::KEY_ROTATION);
     if (rotation == 90){
         camParams.set(android::CameraParameters::KEY_ROTATION, "0");
     }
@@ -388,30 +388,30 @@ static void CameraHAL_FixupParams(android::CameraParameters &camParams, priv_cam
     }
 
     if (dev->cameraid == CAMERA_ID_FRONT) {
-        camParams.set(CameraParameters::KEY_SUPPORTED_EFFECTS, "");
-        camParams.set(CameraParameters::KEY_SUPPORTED_FLASH_MODES, "");
-        camParams.set(CameraParameters::KEY_SUPPORTED_ISO_MODES, "");
-        camParams.set(CameraParameters::KEY_SUPPORTED_SCENE_MODES, "");
-        camParams.set(CameraParameters::KEY_SUPPORTED_WHITE_BALANCE, "");
-        camParams.set(CameraParameters::KEY_SUPPORTED_PREVIEW_FRAME_RATES, "15");
+        camParams.set(android::CameraParameters::KEY_SUPPORTED_EFFECTS, "");
+        camParams.set(android::CameraParameters::KEY_SUPPORTED_FLASH_MODES, "");
+        camParams.set(android::CameraParameters::KEY_SUPPORTED_ISO_MODES, "");
+        camParams.set(android::CameraParameters::KEY_SUPPORTED_SCENE_MODES, "");
+        camParams.set(android::CameraParameters::KEY_SUPPORTED_WHITE_BALANCE, "");
+        camParams.set(android::CameraParameters::KEY_SUPPORTED_PREVIEW_FRAME_RATES, "15");
     }
 
     if (dev->cameraid == CAMERA_ID_BACK) {
         if (!camParams.get(android::CameraParameters::KEY_MAX_NUM_FOCUS_AREAS)) {
-            camParams.set(CameraParameters::KEY_MAX_NUM_FOCUS_AREAS, 1);
+            camParams.set(android::CameraParameters::KEY_MAX_NUM_FOCUS_AREAS, 1);
         }
-        camParams.set(CameraParameters::KEY_SUPPORTED_FOCUS_MODES, "auto,macro");
-        camParams.set(CameraParameters::KEY_SUPPORTED_ISO_MODES, "auto,ISO50,ISO100,ISO200,ISO400");
+        camParams.set(android::CameraParameters::KEY_SUPPORTED_FOCUS_MODES, "auto,macro");
+        camParams.set(android::CameraParameters::KEY_SUPPORTED_ISO_MODES, "auto,ISO50,ISO100,ISO200,ISO400");
 
-        camParams.set(CameraParameters::KEY_SUPPORTED_PREVIEW_FRAME_RATES, "30");
+        camParams.set(android::CameraParameters::KEY_SUPPORTED_PREVIEW_FRAME_RATES, "30");
 
-        camParams.set(CameraParameters::KEY_SUPPORTED_EFFECTS, "none,mono,negative,sepia");
-        camParams.set(CameraParameters::KEY_SUPPORTED_FOCUS_MODES, "auto,infinity,normal,macro,facedetect,touchaf");
+        camParams.set(android::CameraParameters::KEY_SUPPORTED_EFFECTS, "none,mono,negative,sepia");
+        camParams.set(android::CameraParameters::KEY_SUPPORTED_FOCUS_MODES, "auto,infinity,normal,macro,facedetect,touchaf");
     }
 
-    camParams.set(CameraParameters::KEY_MAX_EXPOSURE_COMPENSATION, 4);
-    camParams.set(CameraParameters::KEY_MIN_EXPOSURE_COMPENSATION, -4);
-    camParams.set(CameraParameters::KEY_EXPOSURE_COMPENSATION_STEP, 1);
+    camParams.set(android::CameraParameters::KEY_MAX_EXPOSURE_COMPENSATION, 4);
+    camParams.set(android::CameraParameters::KEY_MIN_EXPOSURE_COMPENSATION, -4);
+    camParams.set(android::CameraParameters::KEY_EXPOSURE_COMPENSATION_STEP, 1);
 }
 
 static int camera_set_preview_window(struct camera_device *device,
