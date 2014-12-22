@@ -70,7 +70,10 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/ramdisk/init.qcom.usb.rc:recovery/root/init.qcom.usb.rc \
     $(LOCAL_PATH)/ramdisk/fstab.qcom:recovery/root/fstab.qcom \
-    $(LOCAL_PATH)/recovery/twrp.fstab:recovery/root/etc/twrp.fstab 
+
+# TWRP
+PRODUCT_COPY_FILES += \
+    device/samsung/recovery/twrp.fstab:recovery/root/etc/twrp.fstab 
 
 # Input device calibration files
 PRODUCT_COPY_FILES += \
