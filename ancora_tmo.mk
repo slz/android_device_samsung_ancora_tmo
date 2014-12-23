@@ -53,10 +53,10 @@ PRODUCT_COPY_FILES += \
 
 # Ramdisk
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/ramdisk/init.qcom.rc:root/init.qcom.rc \
-    $(LOCAL_PATH)/ramdisk/init.qcom.usb.rc:root/init.qcom.usb.rc \
-    $(LOCAL_PATH)/ramdisk/ueventd.qcom.rc:root/ueventd.qcom.rc \
-    $(LOCAL_PATH)/ramdisk/fstab.qcom:root/fstab.qcom
+    $(LOCAL_PATH)/rootdir/init.qcom.rc:root/init.qcom.rc \
+    $(LOCAL_PATH)/rootdir/init.qcom.usb.rc:root/init.qcom.usb.rc \
+    $(LOCAL_PATH)/rootdir/ueventd.qcom.rc:root/ueventd.qcom.rc \
+    $(LOCAL_PATH)/rootdir/fstab.qcom:root/fstab.qcom
 
 # Wifi calibration
 PRODUCT_COPY_FILES += \
@@ -66,20 +66,11 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/prebuilt/get_macaddrs:system/bin/get_macaddrs
 
-# Recovery stuff
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/ramdisk/init.qcom.usb.rc:recovery/root/init.qcom.usb.rc \
-    $(LOCAL_PATH)/ramdisk/fstab.qcom:recovery/root/fstab.qcom
-
-# TWRP
-PRODUCT_COPY_FILES += \
-    device/samsung/recovery/twrp.fstab:recovery/root/etc/twrp.fstab 
-
 # Input device calibration files
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/sec_touchscreen.idc:system/usr/idc/sec_touchscreen.idc
 
-# keylayout
+# Keylayouts
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/keylayout/sec_jack.kl:system/usr/keylayout/sec_jack.kl \
     $(LOCAL_PATH)/keylayout/sec_key.kl:system/usr/keylayout/sec_key.kl \
@@ -162,9 +153,14 @@ PRODUCT_PACKAGES += qcmediaplayer
 # Torch
 PRODUCT_PACKAGES += Torch
 
+# IPv6 tethering
+PRODUCT_PACKAGES += \
+    ebtables \
+    ethertypes
+
 # For userdebug builds
 ADDITIONAL_DEFAULT_PROPERTIES += \
-    ro.secure=0
+    ro.secure=0 \
     ro.adb.secure=0 \
     ro.debuggable=1 \
     persist.service.adb.enable=1
