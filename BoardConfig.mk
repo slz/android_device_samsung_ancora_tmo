@@ -168,6 +168,7 @@ BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
 BOARD_VOLD_MAX_PARTITIONS := 28
 
 # Custom recovery files
+TARGET_RECOVERY_DEVICE_DIRS += device/samsung/ancroa_tmo
 TARGET_RECOVERY_FSTAB := device/samsung/ancora_tmo/rootdir/fstab.qcom
 COMMON_GLOBAL_CFLAGS += -DNO_SECURE_DISCARD
 
