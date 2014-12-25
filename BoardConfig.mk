@@ -45,6 +45,7 @@ TARGET_CPU_VARIANT := cortex-a8
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
 TARGET_ARCH_LOWMEM := true
+TARGET_CPU_SMP := false
 
 # Kernel
 BOARD_KERNEL_BASE := 0x00400000
