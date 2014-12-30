@@ -227,7 +227,6 @@ public:
     /**
      * Dump state of the camera hardware
      */
-
     virtual void takeLiveSnapshot() = 0;
 };
 

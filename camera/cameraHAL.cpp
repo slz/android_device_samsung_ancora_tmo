@@ -59,7 +59,7 @@ static sp<CameraHardwareInterface> gCameraHals[MAX_CAMERAS_SUPPORTED];
 static unsigned int gCamerasOpen = 0;
 
 static int camera_device_open(const hw_module_t *module, const char *name,
-                              hw_device_t **device);
+        hw_device_t **device);
 static int camera_get_number_of_cameras(void);
 static int camera_get_camera_info(int camera_id, struct camera_info *info);
 
@@ -76,16 +76,16 @@ camera_module_t HAL_MODULE_INFO_SYM = {
         .name = "Samsung msm7x30 Camera Wrapper",
         .author = "Zhibin Wu",
         .methods = &camera_module_methods,
-        .dso = NULL,
-        .reserved = {0},
+        .dso = NULL, /* remove compilation warnings */
+        .reserved = {0}, /* remove compilation warnings */
     },
 
     .get_number_of_cameras = camera_get_number_of_cameras,
     .get_camera_info = camera_get_camera_info,
-    .set_callbacks = NULL,
-    .get_vendor_tag_ops = NULL,
-    .open_legacy = NULL,
-    .reserved = {0},
+    .set_callbacks = NULL, /* remove compilation warnings */
+    .get_vendor_tag_ops = NULL, /* remove compilation warnings */
+    .open_legacy = NULL, /* remove compilation warnings */
+    .reserved = {0}, /* remove compilation warnings */
 };
 
 typedef struct priv_camera_device {
@@ -151,16 +151,24 @@ static void wrap_set_fd_hook(void *data, int fd)
     dev = (priv_camera_device_t*) data;
 }
 
+//Dorregaray for zooming
 static void wrap_set_crop_hook(void *data,
         uint32_t x, uint32_t y, uint32_t w, uint32_t h)
 {
     priv_camera_device_t *dev = NULL;
+    preview_stream_ops *window = NULL;
     ALOGV("%s+++: %p", __FUNCTION__,data);
 
     if (!data)
         return;
 
     dev = (priv_camera_device_t*) data;
+
+    window = dev->window;
+    if (window == 0)
+        return;
+
+    window->set_crop(window, x, y, w, h);
 }
 
 //QiSS ME for preview
@@ -245,17 +253,7 @@ static camera_memory_t *wrap_memory_data(priv_camera_device_t *dev,
     if (!dev->request_memory)
         return NULL;
 
-   if (dataPtr == NULL) {
-        ALOGE("%s: dataPtr is null", __FUNCTION__);
-        return NULL;
-    }
-
     heap = dataPtr->getMemory(&offset, &size);
-   if (heap == 0) {
-        ALOGE("%s: heap memory not found", __FUNCTION__);
-        return NULL;
-    }
-
     data = (void *)((char *)(heap->base()) + offset);
 
     ALOGV("%s: data: %p size: %i", __FUNCTION__, data, size);
@@ -263,15 +261,12 @@ static camera_memory_t *wrap_memory_data(priv_camera_device_t *dev,
 
     mem = dev->request_memory(-1, size, 1, dev->user);
 
-   if (mem) {
-        ALOGV(" mem:%p,mem->data%p ", mem, mem->data);
-        memcpy(mem->data, data, size);
-    } else {
-        ALOGE("%s: failed to acquire the requested memory (size: %i)", __FUNCTION__, size);
-        mem = NULL;
-    }
+    ALOGV(" mem:%p,mem->data%p ",  mem,mem->data);
+
+    memcpy(mem->data, data, size);
 
     ALOGV("%s---", __FUNCTION__);
+
     return mem;
 }
 
@@ -309,8 +304,7 @@ static void wrap_data_callback(int32_t msg_type, const sp<IMemory>& dataPtr,
 
     dev = (priv_camera_device_t*) user;
 
-    if (msg_type == CAMERA_MSG_RAW_IMAGE)
-    {
+    if (msg_type == CAMERA_MSG_RAW_IMAGE) {
         gCameraHals[dev->cameraid]->disableMsgType(CAMERA_MSG_RAW_IMAGE);
         return;
     }
@@ -331,7 +325,7 @@ static void wrap_data_callback(int32_t msg_type, const sp<IMemory>& dataPtr,
 static void wrap_data_callback_timestamp(nsecs_t timestamp, int32_t msg_type,
         const sp<IMemory>& dataPtr, void *user)
 {
-    priv_camera_device_t* dev = NULL;
+    priv_camera_device_t *dev = NULL;
     camera_memory_t *data = NULL;
 
     ALOGV("%s+++: type %i user %p ts %u", __FUNCTION__, msg_type, user, timestamp);
@@ -347,7 +341,7 @@ static void wrap_data_callback_timestamp(nsecs_t timestamp, int32_t msg_type,
     if (dev->data_timestamp_callback)
         dev->data_timestamp_callback(timestamp,msg_type, data, 0, dev->user);
 
-    gCameraHals[dev->cameraid]->releaseRecordingFrame(dataPtr); // Need release or record will stop
+    gCameraHals[dev->cameraid]->releaseRecordingFrame(dataPtr); //QiSS ME need release or record will stop
 
     if (NULL != data) {
         data->release(data);
@@ -363,21 +357,16 @@ static void wrap_data_callback_timestamp(nsecs_t timestamp, int32_t msg_type,
 static void CameraHAL_FixupParams(android::CameraParameters &camParams, priv_camera_device_t *dev)
 {
     const char *preferred_size = "640x480";
-    /*const char *video_sizes = "640x480,320x240,176x144";*/
 
     camParams.set(android::CameraParameters::KEY_VIDEO_FRAME_FORMAT,
                   android::CameraParameters::PIXEL_FORMAT_YUV420SP);
-
-    /*camParams.set(android::CameraParameters::KEY_SUPPORTED_VIDEO_SIZES,
-                  video_sizes);*/
-
 
     if (!camParams.get(android::CameraParameters::KEY_PREFERRED_PREVIEW_SIZE_FOR_VIDEO)) {
         camParams.set(android::CameraParameters::KEY_PREFERRED_PREVIEW_SIZE_FOR_VIDEO,
                   preferred_size);
     }
-
-    camParams.set(android::CameraParameters::KEY_SUPPORTED_FLASH_MODES, "off,auto,on,torch");
+	
+	camParams.set(android::CameraParameters::KEY_SUPPORTED_FLASH_MODES, "off,auto,on,torch");
     camParams.set(android::CameraParameters::KEY_FLASH_MODE, "off");
 
     int rotation = camParams.getInt(android::CameraParameters::KEY_ROTATION);
@@ -387,6 +376,7 @@ static void CameraHAL_FixupParams(android::CameraParameters &camParams, priv_cam
     if (rotation == 270){
         camParams.set(android::CameraParameters::KEY_ROTATION, "180");
     }
+
 
     if (dev->cameraid == CAMERA_ID_FRONT) {
         camParams.set(android::CameraParameters::KEY_SUPPORTED_EFFECTS, "");
@@ -404,10 +394,10 @@ static void CameraHAL_FixupParams(android::CameraParameters &camParams, priv_cam
         camParams.set(android::CameraParameters::KEY_SUPPORTED_FOCUS_MODES, "auto,macro");
         camParams.set(android::CameraParameters::KEY_SUPPORTED_ISO_MODES, "auto,ISO50,ISO100,ISO200,ISO400");
 
-        camParams.set(android::CameraParameters::KEY_SUPPORTED_PREVIEW_FRAME_RATES, "30");
+        camParams.set(android::CameraParameters::KEY_MAX_ZOOM, "0");
+        camParams.set(android::CameraParameters::KEY_ZOOM_SUPPORTED, CameraParameters::FALSE);
 
-        camParams.set(android::CameraParameters::KEY_SUPPORTED_EFFECTS, "none,mono,negative,sepia");
-        camParams.set(android::CameraParameters::KEY_SUPPORTED_FOCUS_MODES, "auto,infinity,normal,macro,facedetect,touchaf");
+        camParams.set(android::CameraParameters::KEY_SUPPORTED_PREVIEW_FRAME_RATES, "30");
     }
 
     camParams.set(android::CameraParameters::KEY_MAX_EXPOSURE_COMPENSATION, 4);
@@ -495,6 +485,7 @@ static int camera_set_preview_window(struct camera_device *device,
     gCameraHals[dev->cameraid]->setOverlay(dev->overlay);
 
     ALOGI("%s---", __FUNCTION__);
+
     return 0;
 }
 
@@ -526,7 +517,7 @@ static void camera_set_callbacks(struct camera_device *device,
     ALOGI("%s---", __FUNCTION__);
 }
 
-static void camera_enable_msg_type(struct camera_device * device, int32_t msg_type)
+static void camera_enable_msg_type(struct camera_device *device, int32_t msg_type)
 {
     priv_camera_device_t *dev = NULL;
 
@@ -545,7 +536,6 @@ static void camera_enable_msg_type(struct camera_device * device, int32_t msg_ty
 
     gCameraHals[dev->cameraid]->enableMsgType(msg_type);
     ALOGI("%s---", __FUNCTION__);
-
 }
 
 static void camera_disable_msg_type(struct camera_device *device, int32_t msg_type)
@@ -567,7 +557,6 @@ static void camera_disable_msg_type(struct camera_device *device, int32_t msg_ty
 
     gCameraHals[dev->cameraid]->disableMsgType(msg_type);
     ALOGI("%s---", __FUNCTION__);
-
 }
 
 static int camera_msg_type_enabled(struct camera_device *device, int32_t msg_type)
@@ -604,7 +593,7 @@ static int camera_start_preview(struct camera_device *device)
     rv = gCameraHals[dev->cameraid]->startPreview();
 
     ALOGI("%s--- rv %d", __FUNCTION__,rv);
-	
+
     if (!rv)
         dev->preview_started = 1;
 
@@ -662,6 +651,7 @@ static int camera_start_recording(struct camera_device *device)
     rv = gCameraHals[dev->cameraid]->startRecording();
 
     ALOGI("%s--- rv %d", __FUNCTION__,rv);
+
     return rv;
 }
 
@@ -699,13 +689,14 @@ static int camera_recording_enabled(struct camera_device *device)
     rv = gCameraHals[dev->cameraid]->recordingEnabled();
 
     ALOGI("%s--- rv %d", __FUNCTION__,rv);
+
     return rv;
 }
 
 static void camera_release_recording_frame(struct camera_device *device,
         const void *opaque)
 {
-    ALOGI("%s---", __FUNCTION__);
+    ALOGI("%s", __FUNCTION__);
 }
 
 static int camera_auto_focus(struct camera_device *device)
@@ -770,6 +761,7 @@ static int camera_take_picture(struct camera_device *device)
     gCameraHals[dev->cameraid]->stopPreview();
 
     ALOGI("%s--- rv %d", __FUNCTION__,rv);
+
     return rv;
 }
 
@@ -918,9 +910,7 @@ static int camera_device_close(hw_device_t *device)
         free(dev);
     }
 done:
-#ifdef HEAPTRACKER
-    heaptracker_free_leaked_memory();
-#endif
+
     ALOGI("%s--- ret %d", __FUNCTION__,ret);
 
     return ret;
@@ -943,7 +933,7 @@ static void sigfpe_handle(int s)
  */
 
 static int camera_device_open(const hw_module_t *module, const char *name,
-                       hw_device_t **device)
+        hw_device_t **device)
 {
     int rv = 0;
     int cameraid;
@@ -951,8 +941,6 @@ static int camera_device_open(const hw_module_t *module, const char *name,
     priv_camera_device_t *priv_camera_device = NULL;
     camera_device_ops_t *camera_ops = NULL;
     sp<CameraHardwareInterface> camera = NULL;
-
-    //android::Mutex::Autolock lock(gCameraDeviceLock);
 
     /* add SIGFPE handler */
     signal(SIGFPE, sigfpe_handle);
@@ -1048,6 +1036,7 @@ fail:
         free(priv_camera_device);
         priv_camera_device = NULL;
     }
+
     if (camera_ops) {
         free(camera_ops);
         camera_ops = NULL;
@@ -1078,7 +1067,7 @@ static int camera_get_camera_info(int camera_id, struct camera_info *info)
     info->facing = cameraInfo.facing;
     info->orientation = cameraInfo.orientation;
 
-    ALOGI("%s: id:%i faceing:%i orientation: %i", __FUNCTION__,camera_id, 
+    ALOGI("%s: id:%i faceing:%i orientation: %i", __FUNCTION__,camera_id,
             info->facing, info->orientation);
 
     return rv;

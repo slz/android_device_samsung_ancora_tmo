@@ -23,22 +23,13 @@ ro.sf.lcd_density=240
 # This is a 16.16 fixed point number.
 ro.opengles.version=131072
 
-# Perform dexopt in data as our cache partition is very small
-dalvik.vm.dexopt-data-only=1
-
 # QCOM
 debug.sf.hw=1
 debug.mdpcomp.logs=0
 debug.composition.type=dyn
 
-# Disable dirty regions for now
-debug.hwui.render_dirty_regions=false
-
 # Low Power Audio
-lpa.decode=true
-
-# Resampler quality
-af.resampler.quality=4
+lpa.decode=false
 
 # Disable gapless mode
 audio.gapless.playback.disable=true
@@ -46,21 +37,26 @@ audio.gapless.playback.disable=true
 # Set default USB interface
 persist.sys.usb.config=mtp
 
+# Set read only default composition for USB
+ro.sys.usb.default.config=mtp
+
 # Increase speed for UMS transfer
 ro.vold.umsdirtyratio=20
-
-# Enable reboot to download in recovery
-ro.bootloader.mode=download
 
 # Low memory device
 ro.config.low_ram=true
 
+# Force high-end graphics in low ram mode
+persist.sys.force_highendgfx=false
+
 # Reduce background apps limit to 16 on low-tier devices
 ro.sys.fw.bg_apps_limit=16
 
-# Use ION uncached buffers for video recording and video playback
-persist.camera.mem.usecache=0
-persist.video.mem.usecache=0
+# Set max background services
+ro.config.max_starting_bg=4
+
+# Disable metadata mode
+debug.camcorder.disablemeta=1
 
 # Use Awesomeplayer instead of NuPlayer
 media.stagefright.use-awesome=true

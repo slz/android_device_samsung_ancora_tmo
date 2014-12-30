@@ -42,16 +42,13 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml
 
-# Media codecs
+# Media configuration
 PRODUCT_COPY_FILES += \
     frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
     frameworks/av/media/libstagefright/data/media_codecs_ffmpeg.xml:system/etc/media_codecs_ffmpeg.xml \
-    $(LOCAL_PATH)/media/media_codecs.xml:system/etc/media_codecs.xml
-
-# Media configuration
-PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/media/media_codecs.xml:system/etc/media_codecs.xml \
     $(LOCAL_PATH)/media/media_profiles.xml:system/etc/media_profiles.xml
 
 # Audio configuration
@@ -77,7 +74,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/sec_touchscreen.idc:system/usr/idc/sec_touchscreen.idc
 
-# keylayout
+# Keylayouts
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/keylayout/sec_jack.kl:system/usr/keylayout/sec_jack.kl \
     $(LOCAL_PATH)/keylayout/sec_key.kl:system/usr/keylayout/sec_key.kl \
@@ -150,13 +147,20 @@ PRODUCT_PACKAGES += \
     setup_fs
 
 PRODUCT_PACKAGES += \
+    fsck.f2fs \
+    mkfs.f2fs
+
+PRODUCT_PACKAGES += \
     com.android.future.usb.accessory
 
 # qcmediaplayer
-PRODUCT_PACKAGES += qcmediaplayer
+PRODUCT_PACKAGES += \
+    qcmediaplayer
 
-# Torch
-PRODUCT_PACKAGES += Torch
+# IPv6 tethering
+PRODUCT_PACKAGES += \
+    ebtables \
+    ethertypes
 
 # WPA supplicant
 PRODUCT_PACKAGES += \
@@ -172,18 +176,6 @@ ADDITIONAL_DEFAULT_PROPERTIES += \
     ro.adb.secure=0 \
     ro.debuggable=1 \
     persist.service.adb.enable=1
-
-# For applications to determine if they should turn off specific memory-intensive
-# features that work poorly on low-memory devices.
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.config.low_ram=true
-
-# Disable preloading of EGL/GL drivers in Zygote at boot time
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.zygote.disable_gl_preload=true
-
-# We have enough storage space to hold precise GC data
-PRODUCT_TAGS += dalvik.gc.type-precise
 
 $(call inherit-product-if-exists, vendor/samsung/ancora_tmo/device-vendor.mk)
 $(call inherit-product-if-exists, hardware/broadcom/wlan/bcmdhd/firmware/bcm4329/device-bcm.mk)

@@ -16,8 +16,6 @@
      limitations under the License.
 -->
 <MediaCodecs>
-    <Include href="media_codecs_google_audio.xml" />
-    <Include href="media_codecs_google_telephony.xml" />
     <Encoders>
         <!-- Audio Hardware  -->
         <MediaCodec name="OMX.qcom.audio.encoder.evrc" type="audio/evrc" >
@@ -69,7 +67,6 @@
             <Quirk name="requires-global-flush"/>
         </MediaCodec>
         <!-- Audio Software  -->
-        <MediaCodec name="OMX.google.aac.decoder" type="audio/mp4a-latm" />
         <MediaCodec name="OMX.qcom.audio.decoder.Qcelp13" type="audio/qcelp" >
             <Quirk name="requires-global-flush" />
         </MediaCodec>
@@ -118,6 +115,8 @@
             <Feature name="adaptive-playback" />
         </MediaCodec>
     </Decoders>
+    <Include href="media_codecs_google_audio.xml" />
+    <Include href="media_codecs_google_telephony.xml" />
     <Include href="media_codecs_google_video.xml" />
     <Include href="media_codecs_ffmpeg.xml" />
 </MediaCodecs>
