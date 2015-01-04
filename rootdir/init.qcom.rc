@@ -134,8 +134,17 @@ on boot
     chown system audio /sys/devices/virtual/misc/amp/gain_all
     chown system audio /sys/devices/virtual/misc/amp/save
 
-    chown radio system sys/devices/virtual/sec/switch/disable_vbus
-    chown radio system sys/devices/virtual/sec/switch/usb_sel
+    chown radio system /sys/devices/virtual/sec/switch/disable_vbus
+    chown radio system /sys/devices/virtual/sec/switch/usb_sel
+
+    # Fast Charge and USB-Host charging mode
+    chown system system /sys/kernel/fast_charge/force_fast_charge
+    chown system system /sys/class/sec/switch/otg_charger_type
+
+    # External SD scheduler
+    chown system system /sys/block/mmcblk1/queue/scheduler
+    chmod 0664 /sys/block/mmcblk1/queue/scheduler
+    restorecon /sys/block/mmcblk1/queue/scheduler
 
      # Permissions for kernel
     chown radio system /sys/devices/virtual/graphics/fb1/video_mode
