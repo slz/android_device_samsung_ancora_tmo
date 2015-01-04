@@ -139,6 +139,18 @@ on boot
     chown radio system sys/devices/virtual/sec/switch/disable_vbus
     chown radio system sys/devices/virtual/sec/switch/usb_sel
 
+     # Permissions for kernel
+    chown radio system /sys/devices/platform/msm_sdcc.2/polling
+    chown radio system /sys/devices/platform/msm_sdcc.1/polling
+
+    # Fast Charge and USB-Host charging mode
+    chown system system /sys/kernel/fast_charge/force_fast_charge
+    chown system system /sys/class/sec/switch/otg_charger_type
+
+    # External SD scheduler
+    chown system system /sys/block/mmcblk1/queue/scheduler
+    chmod 0664 /sys/block/mmcblk1/queue/scheduler
+
     # for silent reset
     chown system system /proc/dump_enable
     chown system system /proc/silent
