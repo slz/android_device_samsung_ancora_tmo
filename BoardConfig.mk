@@ -178,6 +178,7 @@ BOARD_SEPOLICY_UNION += \
     init.te \
     mac_update.te \
     mediaserver.te \
+    netd.te \
     platform_app.te \
     property.te \
     rild.te \
