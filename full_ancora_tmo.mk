@@ -15,9 +15,6 @@
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 $(call inherit-product, $(LOCAL_PATH)/ancora_tmo.mk)
 
-# The gps config appropriate for this device
-$(call inherit-product, device/common/gps/gps_us_supl.mk)
-
 # Set those variables here to overwrite the inherited values.
 PRODUCT_NAME := full_ancora_tmo
 PRODUCT_DEVICE := ancora_tmo
