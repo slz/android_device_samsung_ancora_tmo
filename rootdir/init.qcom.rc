@@ -161,8 +161,6 @@ on boot
     # Touchkeys
     chown system system /sys/class/misc/notification/bl_timeout
     chown system system /sys/class/misc/notification/touchlight_enabled
-    restorecon /sys/class/misc/notification/bl_timeout
-    restorecon /sys/class/misc/notification/touchlight_enabled
 
     # Vibrator
     chown system system /sys/class/vibetonz/immDuty/pwmvalue_intensity
