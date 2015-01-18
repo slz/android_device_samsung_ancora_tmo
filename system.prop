@@ -47,7 +47,7 @@ ro.vold.umsdirtyratio=20
 ro.config.low_ram=true
 
 # Force high-end graphics in low ram mode
-persist.sys.force_highendgfx=false
+persist.sys.force_highendgfx=true
 
 # Reduce background apps limit to 16 on low-tier devices
 ro.sys.fw.bg_apps_limit=16
@@ -66,3 +66,7 @@ config.disable_atlas=true
 
 # Enable smooth streaming
 mm.enable.smoothstreaming=true
+
+# Uncomment the following line to enable Bluetooth A2DP sink
+#persist.service.bt.a2dp.sink=true
+
