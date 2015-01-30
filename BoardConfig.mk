@@ -66,7 +66,6 @@ TARGET_KERNEL_SOURCE := kernel/samsung/ancora_tmo
 TARGET_KERNEL_CONFIG := ancora_tmo_defconfig
 
 # Wifi related defines
-BOARD_NO_WIFI_HAL                := true
 WIFI_BAND                        := 802_11_ABG
 WPA_SUPPLICANT_VERSION           := VER_0_8_X
 BOARD_WPA_SUPPLICANT_DRIVER      := NL80211
