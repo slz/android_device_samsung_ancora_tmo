@@ -90,7 +90,7 @@ PRODUCT_PACKAGES += \
     gps.msm7x30 \
     lights.msm7x30 \
     power.msm7x30 \
-    sensors.ancora \
+    sensors.ancora_tmo \
     audio.primary.msm7x30 \
     audio.a2dp.default \
     audio.usb.default \
