@@ -124,6 +124,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     com.android.future.usb.accessory
 
+PRODUCT_PACKAGES += \
+    libexifa \
+    libjpega
+
 # qcmediaplayer
 PRODUCT_PACKAGES += \
     qcmediaplayer
