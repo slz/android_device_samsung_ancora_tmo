@@ -141,7 +141,9 @@ PRODUCT_PACKAGES += \
     resize2fs \
     tune2fs \
     make_ext4fs \
-    setup_fs
+    setup_fs \
+    fsck.f2fs \
+    mkfs.f2fs
 
 PRODUCT_PACKAGES += \
     com.android.future.usb.accessory \
