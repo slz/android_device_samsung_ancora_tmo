@@ -37,6 +37,7 @@ __BEGIN_DECLS
 #define ID_M (1)
 #define ID_O (2)
 #define ID_P (3)
+#define ID_R (4)
 
 #define AKM_DEVICE_NAME "/dev/akm8975"
 
@@ -58,16 +59,23 @@ __BEGIN_DECLS
 #define EVENT_TYPE_ACCEL_Z          ABS_Z
 
 /* For Magnetometer */
-#define EVENT_TYPE_MAGV_X           ABS_THROTTLE
-#define EVENT_TYPE_MAGV_Y           ABS_RUDDER
-#define EVENT_TYPE_MAGV_Z           ABS_GAS
+#define EVENT_TYPE_MAGV_X           ABS_RY
+#define EVENT_TYPE_MAGV_Y           ABS_RZ
+#define EVENT_TYPE_MAGV_Z           ABS_THROTTLE
+#define EVENT_TYPE_MAGV_STATUS      ABS_RUDDER
 
-/* For Orientation */
-#define EVENT_TYPE_YAW              ABS_RX
-#define EVENT_TYPE_PITCH            ABS_RY
-#define EVENT_TYPE_ROLL             ABS_RZ
-#define EVENT_TYPE_ORIENT_STATUS    ABS_WHEEL //8
+/* Fusion Orientation */
+#define EVENT_TYPE_YAW              ABS_HAT0Y
+#define EVENT_TYPE_PITCH            ABS_HAT1X
+#define EVENT_TYPE_ROLL             ABS_HAT1Y
 
+/* Fusion Rotation Vector */
+#define EVENT_TYPE_ROTVEC_X         ABS_TILT_X
+#define EVENT_TYPE_ROTVEC_Y         ABS_TILT_Y
+#define EVENT_TYPE_ROTVEC_Z         ABS_TOOL_WIDTH
+#define EVENT_TYPE_ROTVEC_W         ABS_VOLUME
+
+/* For Proximity */
 #define EVENT_TYPE_PROXIMITY        ABS_DISTANCE
 
 // conversion of acceleration data to SI units (m/s^2)
@@ -91,6 +99,19 @@ __BEGIN_DECLS
 #define CONVERT_O_R                 (CONVERT_O)
 
 #define SENSOR_STATE_MASK           (0x7FFF)
+
+/* For Temperature */
+#define EVENT_TYPE_TEMP             ABS_MISC
+
+#define LSG                         (1024.0f)
+#define MAX_RANGE_A                 (2*GRAVITY_EARTH)
+
+// conversion of rotation vector (Q14) data to float
+#define CONVERT_R                   (1.0f / 16384.0f)
+
+#define MAX_RANGE_G                 (2000.0f * ((float)(M_PI/180.0f)))
+ // conversion of angular velocity(millidegrees/second) to rad/s
+#define CONVERT_G                   ((70.0f/1000.0f) * ((float)(M_PI/180.0f)))
 
 /*****************************************************************************/
 

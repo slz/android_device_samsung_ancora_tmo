@@ -43,11 +43,13 @@
 #define SENSORS_MAGNETIC_FIELD   (1<<ID_M)
 #define SENSORS_ORIENTATION      (1<<ID_O)
 #define SENSORS_PROXIMITY        (1<<ID_P)
+#define SENSORS_ROTATION_VECTOR  (1<<ID_R)
 
 #define SENSORS_ACCELERATION_HANDLE     0
 #define SENSORS_MAGNETIC_FIELD_HANDLE   1
 #define SENSORS_ORIENTATION_HANDLE      2
 #define SENSORS_PROXIMITY_HANDLE        3
+#define SENSORS_ROTATION_VECTOR_HANDLE  4
 
 /*****************************************************************************/
 
@@ -134,16 +136,16 @@ private:
     int real_activate(int handle, int enabled);
 
     int handleToDriver(int handle) const {
-        switch (handle) {
-           
+        switch (handle) {  
             case ID_A:
                 return bosch;
             case ID_M:
             case ID_O:
-		return akm;
+                return akm;
             case ID_P:
                 return proximity;
-                 
+             case ID_R:
+                return akm;                
         }
         return -EINVAL;
     }
