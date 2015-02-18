@@ -60,3 +60,5 @@ mm.enable.smoothstreaming=true
 # Uncomment the following line to enable Bluetooth A2DP sink
 #persist.service.bt.a2dp.sink=true
 
+# USB-OTG
+persist.sys.isUsbOtgEnabled=true
