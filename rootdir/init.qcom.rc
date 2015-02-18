@@ -83,6 +83,21 @@ on boot
     chown system input /sys/class/input/event4/device/wake
     chown system input /sys/class/input/event4/device/data
 
+	chown compass compass /sys/class/compass/akm8975/enable_acc
+	chown compass compass /sys/class/compass/akm8975/enable_mag
+	chown compass compass /sys/class/compass/akm8975/enable_fusion
+	chown compass compass /sys/class/compass/akm8975/delay_acc
+	chown compass compass /sys/class/compass/akm8975/delay_mag
+	chown compass compass /sys/class/compass/akm8975/delay_fusion
+	chown compass compass /sys/class/compass/akm8975/accel
+	chmod 660 /sys/class/compass/akm8975/enable_acc
+	chmod 660 /sys/class/compass/akm8975/enable_mag
+	chmod 660 /sys/class/compass/akm8975/enable_fusion
+	chmod 660 /sys/class/compass/akm8975/delay_acc
+	chmod 660 /sys/class/compass/akm8975/delay_mag
+	chmod 660 /sys/class/compass/akm8975/delay_fusion
+	chmod 220 /sys/class/compass/akm8975/accel
+
     chown system system /sys/devices/platform/msm_sdcc.1/polling
     chown system system /sys/devices/platform/msm_sdcc.2/polling
     chown system system /sys/devices/platform/msm_hsusb/gadget/wakeup
@@ -331,6 +346,12 @@ service get_macaddrs /system/bin/get_macaddrs
     user root
     oneshot
     disabled
+
+ # Ecompass daemon
+service akmd2 /system/bin/akmdfs -m 1
+     class late_start
+     user compass
+     group compass misc input
 
 # create filesystems if necessary
 service setup_fs /system/bin/setup_fs /dev/block/mmcblk0p15
