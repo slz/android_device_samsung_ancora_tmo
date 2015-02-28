@@ -82,6 +82,7 @@ on boot
     chown system input /sys/class/input/event4/device/delay
     chown system input /sys/class/input/event4/device/wake
     chown system input /sys/class/input/event4/device/data
+    chown system input /sys/class/input/event4/device/status
 
     chown system system /sys/devices/platform/msm_sdcc.1/polling
     chown system system /sys/devices/platform/msm_sdcc.2/polling
