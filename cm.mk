@@ -12,6 +12,7 @@ PRODUCT_RELEASE_NAME := ancora_tmo
 # This device is hdpi
 PRODUCT_AAPT_CONFIG := normal hdpi
 PRODUCT_AAPT_PREF_CONFIG := hdpi
+PRODUCT_RELEASE_NAME := ancora
 
 # Setup device configuration
 PRODUCT_NAME := cm_ancora_tmo
