@@ -4,8 +4,6 @@ $(call inherit-product, vendor/cm/config/common_full_phone.mk)
 # Inherit device configuration
 $(call inherit-product, $(LOCAL_PATH)/full_ancora_tmo.mk)
 
-PRODUCT_RELEASE_NAME := ancora_tmo
-
 #CM_EXPERIMENTAL := true
 #CM_EXTRAVERSION := alpha1
 
