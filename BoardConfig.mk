@@ -130,6 +130,9 @@ TARGET_PROVIDES_POWERHAL := true
 # Include an expanded selection of fonts
 EXTENDED_FONT_FOOTPRINT := true
 
+# CM Hardware
+BOARD_HARDWARE_CLASS := device/samsung/ancora/cmhw
+
 # GPS
 TARGET_GPS_HAL_PATH := device/samsung/ancora_tmo/gps
 BOARD_USES_QCOM_GPS := true
