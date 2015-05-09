@@ -167,6 +167,7 @@ ADDITIONAL_DEFAULT_PROPERTIES += \
 # ART
 PRODUCT_PROPERTY_OVERRIDES += \
     dalvik.vm.dex2oat-filter=interpret-only \
+    dalvik.vm.dex2oat-flags=--no-watch-dog \
     dalvik.vm.image-dex2oat-filter=speed
 
 $(call inherit-product-if-exists, vendor/samsung/ancora_tmo/device-vendor.mk)
