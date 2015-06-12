@@ -163,6 +163,7 @@ extern void (*mmcamera_liveshot_callback)(liveshot_status status, uint32_t jpeg_
  * in bitmasks for boardproperties
  */
 static uint32_t  PREVIEW_SIZE_COUNT;
+static uint32_t  HFR_SIZE_COUNT;
 
 board_property boardProperties[] = {
         {TARGET_MSM7625, 0x00000fff, false, false, false},
@@ -203,6 +204,7 @@ static int data_counter = 0;
 static int record_flag = 0;
 static camera_size_type* picture_sizes;
 static camera_size_type* preview_sizes;
+static camera_size_type* hfr_sizes;
 static unsigned int PICTURE_SIZE_COUNT;
 static const camera_size_type * picture_sizes_ptr;
 static int supportedPictureSizesCount;
@@ -419,6 +421,13 @@ static const str_map lensshade[] = {
     { QCameraParameters::LENSSHADE_DISABLE, FALSE }
 };
 
+static const str_map hfr[] = {
+    { QCameraParameters::VIDEO_HFR_OFF, CAMERA_HFR_MODE_OFF },
+    { QCameraParameters::VIDEO_HFR_2X, CAMERA_HFR_MODE_60FPS },
+    { QCameraParameters::VIDEO_HFR_3X, CAMERA_HFR_MODE_90FPS },
+    { QCameraParameters::VIDEO_HFR_4X, CAMERA_HFR_MODE_120FPS },
+};
+
 static const str_map mce[] = {
     { QCameraParameters::MCE_ENABLE, TRUE },
     { QCameraParameters::MCE_DISABLE, FALSE }
@@ -523,6 +532,7 @@ static const str_map app_preview_formats[] = {
 
 static bool parameter_string_initialized = false;
 static String8 preview_size_values;
+static String8 hfr_size_values;
 static String8 picture_size_values;
 static String8 fps_ranges_supported_values;
 static String8 jpeg_thumbnail_size_values;
@@ -549,6 +559,7 @@ static String8 scenedetect_values;
 static String8 preview_format_values;
 static String8 selectable_zone_af_values;
 static String8 facedetection_values;
+static String8 hfr_values;
 static String8 redeye_reduction_values;
 static String8 zsl_values;
 
@@ -1004,6 +1015,8 @@ QualcommCameraHardware::QualcommCameraHardware()
       mCameraRunning(false),
       mPreviewInitialized(false),
       mPreviewThreadRunning(false),
+      mHFRCount(0),
+      mHFRThreadRunning(false),
       mFrameThreadRunning(false),
       mVideoThreadRunning(false),
       mSmoothzoomThreadExit(false),
@@ -1282,6 +1295,10 @@ void QualcommCameraHardware::initDefaultParameters()
         mParameters.set(QCameraParameters::KEY_FOCUS_AREAS, FOCUS_AREA_INIT);
         mParameters.set(QCameraParameters::KEY_METERING_AREAS, FOCUS_AREA_INIT);
 
+        if(!mIs3DModeOn){
+        hfr_size_values = create_sizes_str(
+                hfr_sizes, HFR_SIZE_COUNT);
+        }
         fps_ranges_supported_values = create_fps_str(
             FpsRangesSupported,FPS_RANGES_SUPPORTED_COUNT );
         mParameters.set(
@@ -1306,6 +1323,10 @@ void QualcommCameraHardware::initDefaultParameters()
             lensshade,sizeof(lensshade)/sizeof(str_map));
         mce_values = create_values_str(
             mce,sizeof(mce)/sizeof(str_map));
+        if(!mIs3DModeOn){
+          hfr_values = create_values_str(
+            hfr,sizeof(hfr)/sizeof(str_map));
+        }
         if(mCurrentTarget == TARGET_MSM8660)
             hdr_values = create_values_str(
                 hdr,sizeof(hdr)/sizeof(str_map));
@@ -1574,6 +1595,16 @@ void QualcommCameraHardware::initDefaultParameters()
                     QCameraParameters::MCE_ENABLE);
     mParameters.set(QCameraParameters::KEY_QC_SUPPORTED_MEM_COLOR_ENHANCE_MODES,
                     mce_values);
+    if(mCfgControl.mm_camera_is_supported(CAMERA_PARM_HFR) && !(mIs3DModeOn)) {
+        mParameters.set(QCameraParameters::KEY_QC_VIDEO_HIGH_FRAME_RATE,
+                    QCameraParameters::VIDEO_HFR_OFF);
+        mParameters.set(QCameraParameters::KEY_QC_SUPPORTED_HFR_SIZES,
+                    hfr_size_values.string());
+        mParameters.set(QCameraParameters::KEY_QC_SUPPORTED_VIDEO_HIGH_FRAME_RATE_MODES,
+                    hfr_values);
+    } else
+        mParameters.set(QCameraParameters::KEY_QC_SUPPORTED_HFR_SIZES,"");
+
     mParameters.set(QCameraParameters::KEY_QC_HIGH_DYNAMIC_RANGE_IMAGING,
                     QCameraParameters::MCE_DISABLE);
     mParameters.set(QCameraParameters::KEY_QC_SUPPORTED_HDR_IMAGING_MODES,
@@ -1826,6 +1857,14 @@ bool QualcommCameraHardware::startCamera()
         return false;
     }
     ALOGV("startCamera preview_sizes %p previewSizeCount %d", preview_sizes, PREVIEW_SIZE_COUNT);
+
+    mCfgControl.mm_camera_query_parms(CAMERA_PARM_HFR_SIZE, (void **)&hfr_sizes, &HFR_SIZE_COUNT);
+    if ((hfr_sizes == NULL) || (!HFR_SIZE_COUNT)) {
+        ALOGE("startCamera X: could not get hfr sizes");
+        return false;
+    }
+    ALOGV("startCamera hfr_sizes %p hfrSizeCount %d", hfr_sizes, HFR_SIZE_COUNT);
+
 
     ALOGV("startCamera X");
     return true;
@@ -2558,8 +2597,30 @@ void *QualcommCameraHardware::runPreviewThread()
                     ALOGE("%s: buffer to be enqueued is unlocked", __FUNCTION__);
                     mDisplayLock.unlock();
                 }
-             retVal = mPreviewWindow->enqueue_buffer(mPreviewWindow,
-                                        frame_buffer[bufferIndex].buffer);
+             const char *str = mParameters.get(QCameraParameters::KEY_QC_VIDEO_HIGH_FRAME_RATE);
+             if(str != NULL){
+                 int is_hfr_off = 0;
+                 mHFRCount++;
+                 if(!strcmp(str, QCameraParameters::VIDEO_HFR_OFF)) {
+                    is_hfr_off = 1;
+                    retVal = mPreviewWindow->enqueue_buffer(mPreviewWindow,
+                                               frame_buffer[bufferIndex].buffer);
+                 } else if (!strcmp(str, QCameraParameters::VIDEO_HFR_2X)) {
+                    mHFRCount %= 2;
+                 } else if (!strcmp(str, QCameraParameters::VIDEO_HFR_3X)) {
+                    mHFRCount %= 3;
+                 } else if (!strcmp(str, QCameraParameters::VIDEO_HFR_4X)) {
+                    mHFRCount %= 4;
+                 }
+                 if(mHFRCount == 0)
+                     retVal = mPreviewWindow->enqueue_buffer(mPreviewWindow,
+                                                frame_buffer[bufferIndex].buffer);
+                 else if(!is_hfr_off)
+                     retVal = mPreviewWindow->cancel_buffer(mPreviewWindow,
+                                                frame_buffer[bufferIndex].buffer);
+             } else
+                   retVal = mPreviewWindow->enqueue_buffer(mPreviewWindow,
+                                              frame_buffer[bufferIndex].buffer);
              if( retVal != NO_ERROR)
                ALOGE("%s: Failed while queueing buffer %d for display."
                          " Error = %d", __FUNCTION__,
@@ -2738,6 +2799,72 @@ int QualcommCameraHardware::mapFrame(buffer_handle_t *buffer) {
      }
   }
   return ret;
+}
+
+void *QualcommCameraHardware::runHFRThread()
+{
+    ALOGD("runHFRThread E");
+    ALOGI("%s: stopping Preview", __FUNCTION__);
+    stopPreviewInternal();
+
+    // Release thumbnail Buffers
+    if( mPreviewWindow != NULL ) {
+        private_handle_t *handle;
+        for (int cnt = 0; cnt < (mZslEnable? (MAX_SNAPSHOT_BUFFERS-2) : numCapture); cnt++) {
+            if(mPreviewWindow != NULL && mThumbnailBuffer[cnt] != NULL) {
+                handle = (private_handle_t *)(*mThumbnailBuffer[cnt]);
+                ALOGV("%s:  Cancelling postview buffer %d ", __FUNCTION__, handle->fd);
+                ALOGV("runHfrThread : display lock");
+                mDisplayLock.lock();
+                if (BUFFER_LOCKED == mThumbnailLockState[cnt]) {
+                    if (GENLOCK_FAILURE == genlock_unlock_buffer(handle)) {
+                       ALOGE("%s: genlock_unlock_buffer failed", __FUNCTION__);
+                       mDisplayLock.unlock();
+                       continue;
+                    } else {
+                       mThumbnailLockState[cnt] = BUFFER_UNLOCKED;
+                    }
+                }
+                status_t retVal = mPreviewWindow->cancel_buffer(mPreviewWindow,
+                                                              mThumbnailBuffer[cnt]);
+                if(retVal != NO_ERROR)
+                    ALOGE("%s: cancelBuffer failed for postview buffer %d",
+                                                     __FUNCTION__, handle->fd);
+                // unregister , unmap and release as well
+                int mBufferSize = previewWidth * previewHeight * 3/2;
+                int mCbCrOffset = PAD_TO_WORD(previewWidth * previewHeight);
+                if(mThumbnailMapped[cnt] && (mSnapshotFormat == PICTURE_FORMAT_JPEG)) {
+                    ALOGE("%s:  Unregistering Thumbnail Buffer %d ", __FUNCTION__, handle->fd);
+                    register_buf(mBufferSize,
+                        mBufferSize, mCbCrOffset, 0,
+                        handle->fd,
+                        0,
+                        (uint8_t *)mThumbnailMapped[cnt],
+                        MSM_PMEM_THUMBNAIL,
+                        false, false);
+                    if (munmap((void *)(mThumbnailMapped[cnt]),handle->size ) == -1) {
+                      ALOGE("StopPreview : Error un-mmapping the thumbnail buffer %d", handle->fd);
+                    }
+                    mThumbnailBuffer[cnt] = NULL;
+                    mThumbnailMapped[cnt] = 0;
+                }
+                ALOGV("runHfrThread : display unlock");
+                mDisplayLock.unlock();
+          }
+       }
+    }
+
+    ALOGV("%s: setting parameters", __FUNCTION__);
+    setParameters(mParameters);
+    ALOGV("%s: starting Preview", __FUNCTION__);
+    if( mPreviewWindow == NULL)
+    {
+        startPreviewInternal();
+    }
+    else {
+        getBuffersAndStartPreview();
+    }
+    return NULL;
 }
 
 void *QualcommCameraHardware::runVideoThread()
@@ -4965,6 +5092,7 @@ status_t QualcommCameraHardware::setParameters(const QCameraParameters& params)
     if ((rc = setSelectableZoneAf(params)))   final_rc = rc;
     // setHighFrameRate needs to be done at end, as there can
     // be a preview restart, and need to use the updated parameters
+    if ((rc = setHighFrameRate(params)))  final_rc = rc;
 
     ALOGV("setParameters: X");
     return final_rc;
@@ -5383,6 +5511,11 @@ bool QualcommCameraHardware::initRecord()
      */
     mRecordFrameSize = PAD_TO_4K(recordBufferSize);
     bool dis_disable = 0;
+    const char *str = mParameters.get(QCameraParameters::KEY_QC_VIDEO_HIGH_FRAME_RATE);
+    if((str != NULL) && (strcmp(str, QCameraParameters::VIDEO_HFR_OFF))) {
+        ALOGI("%s: HFR is ON, DIS has to be OFF", __FUNCTION__);
+        dis_disable = 1;
+    }
     if((mVpeEnabled && mDisEnabled && (!dis_disable))|| mIs3DModeOn){
         mRecordFrameSize = videoWidth * videoHeight * 3 / 2;
         if(mCurrentTarget == TARGET_MSM8660){
@@ -5481,6 +5614,11 @@ status_t QualcommCameraHardware::setDIS() {
         video_frame_cbcroffset = PAD_TO_2K(videoWidth * videoHeight);
 
     disCtrl.dis_enable = mDisEnabled;
+    const char *str = mParameters.get(QCameraParameters::KEY_QC_VIDEO_HIGH_FRAME_RATE);
+    if((str != NULL) && (strcmp(str, QCameraParameters::VIDEO_HFR_OFF))) {
+        ALOGI("%s: HFR is ON, setting DIS as OFF", __FUNCTION__);
+        disCtrl.dis_enable = 0;
+    }
     disCtrl.video_rec_width = videoWidth;
     disCtrl.video_rec_height = videoHeight;
     disCtrl.output_cbcr_offset = video_frame_cbcroffset;
@@ -6726,6 +6864,45 @@ status_t QualcommCameraHardware::setMCEValue(const QCameraParameters& params)
         }
     }
     ALOGE("Invalid MCE value: %s", (str == NULL) ? "NULL" : str);
+    return BAD_VALUE;
+}
+
+status_t QualcommCameraHardware::setHighFrameRate(const QCameraParameters& params)
+{
+    if((!mCfgControl.mm_camera_is_supported(CAMERA_PARM_HFR)) || (mIs3DModeOn)) {
+        ALOGI("Parameter HFR is not supported for this sensor");
+        return NO_ERROR;
+    }
+
+    const char *str = params.get(QCameraParameters::KEY_QC_VIDEO_HIGH_FRAME_RATE);
+    if (str != NULL) {
+        int value = attr_lookup(hfr, sizeof(hfr) / sizeof(str_map), str);
+        if (value != NOT_FOUND) {
+            int32_t temp = (int32_t)value;
+            ALOGI("%s: setting HFR value of %s(%d)", __FUNCTION__, str, temp);
+            //Check for change in HFR value
+            const char *oldHfr = mParameters.get(QCameraParameters::KEY_QC_VIDEO_HIGH_FRAME_RATE);
+            if(strcmp(oldHfr, str)){
+                ALOGI("%s: old HFR: %s, new HFR %s", __FUNCTION__, oldHfr, str);
+                mParameters.set(QCameraParameters::KEY_QC_VIDEO_HIGH_FRAME_RATE, str);
+                if(mCameraRunning == true) {
+                    mHFRThreadWaitLock.lock();
+                    pthread_attr_t pattr;
+                    pthread_attr_init(&pattr);
+                    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_DETACHED);
+                    mHFRThreadRunning = !pthread_create(&mHFRThread,
+                                      &pattr,
+                                      openHFRThread,
+                                      this);
+                    mHFRThreadWaitLock.unlock();
+                    return NO_ERROR;
+                }
+            }
+            native_set_parms(CAMERA_PARM_HFR, sizeof(int32_t), (void *)&temp);
+            return NO_ERROR;
+        }
+    }
+    ALOGE("Invalid HFR value: %s", (str == NULL) ? "NULL" : str);
     return BAD_VALUE;
 }
 
