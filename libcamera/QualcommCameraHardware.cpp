@@ -62,8 +62,6 @@ extern "C" {
 void *libmmcamera;
 void* (*LINK_cam_conf)(void *data);
 void* (*LINK_cam_frame)(void *data);
-void* (*LINK_wait_cam_frame_thread_ready)(void);
-void* (*LINK_cam_frame_set_exit_flag)(int flag);
 bool  (*LINK_jpeg_encoder_init)();
 void  (*LINK_jpeg_encoder_join)();
 bool  (*LINK_jpeg_encoder_encode)(const cam_ctrl_dimension_t *dimen,
@@ -72,9 +70,6 @@ bool  (*LINK_jpeg_encoder_encode)(const cam_ctrl_dimension_t *dimen,
                 common_crop_t *scaling_parms, exif_tags_info_t *exif_data,
                 int exif_table_numEntries, int jpegPadding, const int32_t cbcroffset);
 void (*LINK_camframe_terminate)(void);
-//for 720p
-// Function pointer , called by camframe when a video frame is available.
-void (**LINK_camframe_video_callback)(struct msm_frame * frame);
 // Function to add a frame to free Q
 void (*LINK_camframe_add_frame)(cam_frame_type_t type,struct msm_frame *frame);
 
@@ -87,9 +82,6 @@ int8_t (*LINK_jpeg_encoder_get_buffer_offset)(uint32_t width, uint32_t height,
                                                uint32_t* p_y_offset,
                                                 uint32_t* p_cbcr_offset,
                                                  uint32_t* p_buf_size);
-int8_t (*LINK_jpeg_encoder_setLocation)(const camera_position_type *location);
-void (*LINK_jpeg_encoder_set_3D_info)(cam_3d_frame_format_t format);
-const struct camera_size_type *(*LINK_default_sensor_get_snapshot_sizes)(int *len);
 int (*LINK_launch_cam_conf_thread)(void);
 int (*LINK_release_cam_conf_thread)(void);
 mm_camera_status_t (*LINK_mm_camera_init)(mm_camera_config *, mm_camera_notify*, mm_camera_ops*,uint8_t);
@@ -97,9 +89,6 @@ mm_camera_status_t (*LINK_mm_camera_deinit)();
 mm_camera_status_t (*LINK_mm_camera_destroy)();
 mm_camera_status_t (*LINK_mm_camera_exec)();
 mm_camera_status_t (*LINK_mm_camera_get_camera_info) (cam_info_t* p_cam_info, int* p_num_cameras);
-
-int8_t (*LINK_zoom_crop_upscale)(uint32_t width, uint32_t height,
-    uint32_t cropped_width, uint32_t cropped_height, uint8_t *img_buf);
 
 // callbacks
 void  (**LINK_mmcamera_shutter_callback)(common_crop_t *crop);
@@ -110,8 +99,6 @@ void (*LINK_set_liveshot_frame)(struct msm_frame *liveshot_frame);
 #else
 #define LINK_cam_conf cam_conf
 #define LINK_cam_frame cam_frame
-#define LINK_wait_cam_frame_thread_ready wait_cam_frame_thread_ready
-#define LINK_cam_frame cam_frame_set_exit_flag
 #define LINK_jpeg_encoder_init jpeg_encoder_init
 #define LINK_jpeg_encoder_join jpeg_encoder_join
 #define LINK_jpeg_encoder_encode jpeg_encoder_encode
@@ -120,12 +107,8 @@ void (*LINK_set_liveshot_frame)(struct msm_frame *liveshot_frame);
 #define LINK_jpeg_encoder_setThumbnailQuality jpeg_encoder_setThumbnailQuality
 #define LINK_jpeg_encoder_setRotation jpeg_encoder_setRotation
 #define LINK_jpeg_encoder_get_buffer_offset jpeg_encoder_get_buffer_offset
-#define LINK_jpeg_encoder_setLocation jpeg_encoder_setLocation
-#define LINK_jpeg_encoder_set_3D_info jpeg_encoder_set_3D_info
-#define LINK_default_sensor_get_snapshot_sizes default_sensor_get_snapshot_sizes
 #define LINK_launch_cam_conf_thread launch_cam_conf_thread
 #define LINK_release_cam_conf_thread release_cam_conf_thread
-#define LINK_zoom_crop_upscale zoom_crop_upscale
 #define LINK_mm_camera_init mm_camera_config_init
 #define LINK_mm_camera_deinit mm_camera_config_deinit
 #define LINK_mm_camera_destroy mm_camera_config_destroy
@@ -982,7 +965,6 @@ static Condition singleton_wait;
 static void receive_camframe_callback(struct msm_frame *frame);
 static void receive_liveshot_callback(liveshot_status status, uint32_t jpeg_size);
 static void receive_camstats_callback(camstats_type stype, camera_preview_histogram_info* histinfo);
-static void receive_camframe_video_callback(struct msm_frame *frame); // 720p
 static int8_t receive_event_callback(mm_camera_event* event);
 static void receive_shutter_callback(common_crop_t *crop);
 static void receive_camframe_error_callback(camera_error_type err);
@@ -1743,10 +1725,6 @@ bool QualcommCameraHardware::startCamera()
 
     *(void **)&LINK_cam_frame =
         ::dlsym(libmmcamera, "cam_frame");
-    *(void **)&LINK_wait_cam_frame_thread_ready =
-	::dlsym(libmmcamera, "wait_cam_frame_thread_ready");
-    *(void **)&LINK_cam_frame_set_exit_flag =
-        ::dlsym(libmmcamera, "cam_frame_set_exit_flag");
     *(void **)&LINK_camframe_terminate =
         ::dlsym(libmmcamera, "camframe_terminate");
 
@@ -1767,8 +1745,6 @@ bool QualcommCameraHardware::startCamera()
 
     mCamNotify.on_error_event = &receive_camframe_error_callback;
 
-    // 720 p new recording functions
-    mCamNotify.video_frame_cb = &receive_camframe_video_callback;
      // 720 p new recording functions
 
     *(void **)&LINK_camframe_add_frame = ::dlsym(libmmcamera, "camframe_add_frame");
@@ -1791,9 +1767,6 @@ bool QualcommCameraHardware::startCamera()
 
     *(void**)&LINK_jpeg_encoder_get_buffer_offset =
         ::dlsym(libmmcamera, "jpeg_encoder_get_buffer_offset");
-
-    *(void**)&LINK_jpeg_encoder_set_3D_info =
-        ::dlsym(libmmcamera, "jpeg_encoder_set_3D_info");
 
     *(void **)&LINK_cam_conf =
         ::dlsym(libmmcamera, "cam_conf");
@@ -1818,10 +1791,6 @@ bool QualcommCameraHardware::startCamera()
     *(void **)&LINK_mm_camera_destroy =
         ::dlsym(libmmcamera, "mm_camera_destroy");
 
-    /* Disabling until support is available.*/
-    *(void **)&LINK_zoom_crop_upscale =
-        ::dlsym(libmmcamera, "zoom_crop_upscale");
-
 
 #else
     mCamNotify.preview_frame_cb = &receive_camframe_callback;
@@ -1829,8 +1798,7 @@ bool QualcommCameraHardware::startCamera()
     mCamNotify.on_event =  &receive_event_callback;
 
     mmcamera_shutter_callback = receive_shutter_callback;
-     mCamNotify.on_liveshot_event = &receive_liveshot_callback;
-     mCamNotify.video_frame_cb = &receive_camframe_video_callback;
+    mCamNotify.on_liveshot_event = &receive_liveshot_callback;
 
 #endif // DLOPEN_LIBMMCAMERA
     int ret_val;
@@ -3214,7 +3182,6 @@ ALOGE("%s Got preview dimension as %d x %d ", __func__, previewWidth, previewHei
         } else {
             camframeParams.cammode = CAMERA_MODE_2D;
         }
-        LINK_cam_frame_set_exit_flag(0);
 
         mFrameThreadRunning = !pthread_create(&mFrameThread,
                                               &attr,
@@ -3222,7 +3189,6 @@ ALOGE("%s Got preview dimension as %d x %d ", __func__, previewWidth, previewHei
                                               this);
         ret = mFrameThreadRunning;
         mFrameThreadWaitLock.unlock();
-        LINK_wait_cam_frame_thread_ready();
     }
 
     ALOGV("initPreview X: %d", ret);
@@ -7716,17 +7682,6 @@ static int8_t receive_event_callback(mm_camera_event* event)
     return TRUE;
     ALOGV("%s: X", __FUNCTION__);
 }
-// 720p : video frame calbback from camframe
-static void receive_camframe_video_callback(struct msm_frame *frame)
-{
-    ALOGV("receive_camframe_video_callback E");
-    QualcommCameraHardware* obj = QualcommCameraHardware::getInstance();
-    if (obj != 0) {
-            obj->receiveRecordingFrame(frame);
-         }
-    ALOGV("receive_camframe_video_callback X");
-}
-
 
 int QualcommCameraHardware::storeMetaDataInBuffers(int enable)
 {
