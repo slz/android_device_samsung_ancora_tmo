@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# 44.1 kHz sounds
+$(call inherit-product-if-exists, frameworks/base/data/sounds/AudioPackage12.mk)
+
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 $(call inherit-product, $(LOCAL_PATH)/ancora_tmo.mk)
 
